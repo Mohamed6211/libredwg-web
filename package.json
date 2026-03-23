@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@mlightcad/libredwg-web": "^1.0.0",
+    "@mlightcad/libredwg-web": "^0.6.6",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0"
   }
