@@ -1,7 +1,7 @@
-// server.js
 import express from "express";
 import fileUpload from "express-fileupload";
-import  createModule  from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
+import createModule from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
+
 const libredwg = await createModule();
 
 const app = express();
@@ -21,20 +21,36 @@ app.post("/upload-dwg", async (req, res) => {
   const file = req.files.dwgFile;
   const fileBuffer = file.data;
 
-  
-
   try {
-   const fileName = "temp.dwg";
+    const fileName = "temp.dwg";
+    // Write the file into the WASM virtual file system
+    libredwg.FS.writeFile(fileName, new Uint8Array(fileBuffer));
 
-libredwg.FS.writeFile(fileName, new Uint8Array(fileBuffer));
+    // Parse the DWG file
+    const result = libredwg.dwg_read_file(fileName);
 
-const result = libredwg.dwg_read_file(fileName);
+    if (result.error !== 0) {
+      return res.status(500).json({ error: "DWG read error: " + result.error });
+    }
 
-if (result.error !== 0) {
-  throw new Error("DWG read error: " + result.error);
-}
+    const data = result.data;
 
-const data = result.data;
+    // Parse the DWG entities
+    const entities = data.entities.map((ent) => {
+      if (ent.type === "LINE") {
+        return { type: "LINE", start: ent.start, end: ent.end };
+      }
+      if (ent.type === "LWPOLYLINE" || ent.type === "POLYLINE") {
+        return { type: ent.type, vertices: ent.vertices };
+      }
+      return { type: ent.type };
+    });
+
+    // Respond with entities as JSON
+    res.json({ entities });
+
+    // Clean up the virtual file system
+    libredwg.FS.unlink(fileName);
 
   } catch (err) {
     console.error(err);
