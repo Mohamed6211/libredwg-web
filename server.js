@@ -1,7 +1,7 @@
 // server.js
 import express from "express";
 import fileUpload from "express-fileupload";
-import { createModule } from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
+import  createModule  from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
 const libredwg = await createModule();
 
 const app = express();
