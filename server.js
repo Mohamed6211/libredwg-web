@@ -1,7 +1,7 @@
 import express from "express";
 import fileUpload from "express-fileupload";
-// import createModule from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
-import { LibreDwg, Dwg_File_Type } from "@mlightcad/libredwg-web";
+import createModule from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
+// import { LibreDwg, Dwg_File_Type } from "@mlightcad/libredwg-web";
 // import { LibreDwg, Dwg_File_Type } from "./libredwg-web/bindings/javascript/wasm/libredwg-web.js";
 const libredwg = await LibreDwg.create();
 // const libredwg = await createModule();
