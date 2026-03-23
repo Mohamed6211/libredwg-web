@@ -34,6 +34,7 @@ app.post("/upload-dwg", async (req, res) => {
     console.log("Starting DWG processing...");
 
     const fileName = "temp.dwg";
+    
     // Write the file into the WASM virtual file system
     libredwg.FS.writeFile(fileName, new Uint8Array(fileBuffer));
 
@@ -41,7 +42,7 @@ app.post("/upload-dwg", async (req, res) => {
 
     // Parse the DWG file
     const result = libredwg.dwg_read_file(fileName);
-    console.log("DWG file parsed");
+    console.log("DWG read result:", result);
 
     if (result.error !== 0) {
       console.error("DWG read error:", result.error);
@@ -49,6 +50,13 @@ app.post("/upload-dwg", async (req, res) => {
     }
 
     const data = result.data;
+    console.log("Parsed DWG data:", data);
+
+    // Check if entities exist
+    if (!data.entities) {
+      console.error("No entities found in DWG data");
+      return res.status(500).json({ error: "No entities found in DWG data" });
+    }
 
     // Parse the DWG entities
     const entities = data.entities.map((ent) => {
@@ -67,11 +75,11 @@ app.post("/upload-dwg", async (req, res) => {
 
     // Clean up the virtual file system
     libredwg.FS.unlink(fileName);
-
     console.log("File system cleaned up");
+
   } catch (err) {
     console.error("Error during DWG processing:", err);
-    res.status(500).send("Error parsing DWG");
+    res.status(500).json({ error: "Error parsing DWG file: " + err.message });
   }
 });
 
