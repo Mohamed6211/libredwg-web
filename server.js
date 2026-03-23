@@ -24,17 +24,17 @@ app.post("/upload-dwg", async (req, res) => {
   
 
   try {
-    const dwg = libredwg.dwg_read_data(new Uint8Array(fileBuffer), Dwg_File_Type.DWG);
-    const db = libredwg.convert(dwg);
-    libredwg.dwg_free(dwg);
+   const fileName = "temp.dwg";
 
-    const entities = db.entities.map(ent => {
-      if (ent.type === "LINE") return { type: "LINE", start: ent.start, end: ent.end };
-      if (ent.type === "LWPOLYLINE" || ent.type === "POLYLINE") return { type: ent.type, vertices: ent.vertices };
-      return { type: ent.type };
-    });
+libredwg.FS.writeFile(fileName, new Uint8Array(fileBuffer));
 
-    res.json({ entities });
+const result = libredwg.dwg_read_file(fileName);
+
+if (result.error !== 0) {
+  throw new Error("DWG read error: " + result.error);
+}
+
+const data = result.data;
 
   } catch (err) {
     console.error(err);
